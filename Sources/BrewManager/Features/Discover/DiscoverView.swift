@@ -13,53 +13,22 @@ struct DiscoverView: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 10) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-
-                TextField("Search Homebrew catalog", text: searchTextBinding)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit {
-                        Task {
-                            await viewModel.searchNow()
-                        }
-                    }
-
-                Picker("Type", selection: selectedTypeBinding) {
-                    Text("All").tag(PackageType?.none)
-                    Text("Formulae").tag(PackageType?.some(.formula))
-                    Text("Casks").tag(PackageType?.some(.cask))
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(width: 220)
-
-                if viewModel.isSearching {
-                    ProgressView()
-                        .controlSize(.small)
-                }
-
-                Button {
-                    Task {
-                        await viewModel.searchNow()
-                    }
-                } label: {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
-                .disabled(isQueryEmpty || viewModel.isSearching)
-            }
+        VStack(alignment: .leading, spacing: 16) {
+            header
+            searchCard
 
             if let errorMessage = viewModel.errorMessage {
-                Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
-                    .font(.callout)
-                    .foregroundStyle(.red)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                MessageBanner(
+                    severity: .failure,
+                    headline: errorMessage,
+                    onDismiss: { viewModel.errorMessage = nil }
+                )
             } else if let statusMessage = viewModel.statusMessage {
-                Label(statusMessage, systemImage: "checkmark.circle.fill")
-                    .font(.callout)
-                    .foregroundStyle(.green)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                MessageBanner(
+                    severity: .success,
+                    headline: statusMessage,
+                    onDismiss: { viewModel.statusMessage = nil }
+                )
             }
 
             content
@@ -85,6 +54,63 @@ struct DiscoverView: View {
         }
     }
 
+    private var header: some View {
+        HStack(spacing: 12) {
+            IconTile(systemImage: "magnifyingglass", color: Theme.Palette.info, size: 42)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Discover")
+                    .font(.title2.bold())
+                Text("Search the Homebrew catalog and install new formulae or casks.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var searchCard: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+
+            TextField("Search Homebrew catalog", text: searchTextBinding)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit {
+                    Task {
+                        await viewModel.searchNow()
+                    }
+                }
+
+            Picker("Type", selection: selectedTypeBinding) {
+                Text("All").tag(PackageType?.none)
+                Text("Formulae").tag(PackageType?.some(.formula))
+                Text("Casks").tag(PackageType?.some(.cask))
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 220)
+
+            if viewModel.isSearching {
+                ProgressView()
+                    .controlSize(.small)
+            }
+
+            Button {
+                Task {
+                    await viewModel.searchNow()
+                }
+            } label: {
+                Label("Search", systemImage: "magnifyingglass")
+            }
+            .disabled(isQueryEmpty || viewModel.isSearching)
+        }
+        .padding(12)
+        .card(tint: Theme.Palette.info, padding: 0)
+    }
+
     @ViewBuilder
     private var content: some View {
         if isQueryEmpty {
@@ -94,10 +120,10 @@ struct DiscoverView: View {
                 systemImage: "magnifyingglass",
                 tint: Theme.Palette.info
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, minHeight: 280)
         } else if viewModel.isSearching && viewModel.results.isEmpty {
             ProgressView("Searching Homebrew…")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity, minHeight: 280)
         } else if viewModel.results.isEmpty {
             EmptyStateView(
                 title: "No Matches",
@@ -105,7 +131,7 @@ struct DiscoverView: View {
                 systemImage: "magnifyingglass",
                 tint: Theme.Palette.warning
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, minHeight: 280)
         } else {
             HSplitView {
                 List(viewModel.results, selection: selectedPackageIDBinding) { package in
