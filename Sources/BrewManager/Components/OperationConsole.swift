@@ -37,17 +37,13 @@ struct OperationConsoleView: View {
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(.secondary)
 
-                TextEditor(text: $operation.output)
-                    .font(.system(size: 12, design: .monospaced))
-                    .scrollContentBackground(.hidden)
-                    .padding(6)
+                LiveOutputTextView(text: operation.output)
                     .frame(minHeight: 320)
                     .background(Color.black.opacity(0.35), in: RoundedRectangle(cornerRadius: 8))
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .strokeBorder(Color.primary.opacity(0.08))
                     )
-                    .disabled(true)
             }
 
             HStack {
@@ -132,5 +128,91 @@ struct OperationConsoleView: View {
         case .failure:
             return "Exit \(exitCode)"
         }
+    }
+}
+
+/// Read-only terminal output that remains scrollable while the command is
+/// streaming. A disabled `TextEditor` looks right, but on macOS it also disables
+/// wheel/trackpad scrolling; an `NSTextView` can be non-editable and still
+/// selectable + scrollable.
+private struct LiveOutputTextView: NSViewRepresentable {
+    let text: String
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let scrollView = NSScrollView()
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = true
+        scrollView.autohidesScrollers = false
+        scrollView.borderType = .noBorder
+        scrollView.drawsBackground = false
+        scrollView.scrollerStyle = .overlay
+
+        let textView = NSTextView()
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.isRichText = false
+        textView.importsGraphics = false
+        textView.usesFindBar = true
+        textView.allowsUndo = false
+        textView.drawsBackground = false
+        textView.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
+        textView.textColor = .labelColor
+        textView.textContainerInset = NSSize(width: 10, height: 10)
+        textView.textContainer?.widthTracksTextView = false
+        textView.textContainer?.containerSize = NSSize(
+            width: CGFloat.greatestFiniteMagnitude,
+            height: CGFloat.greatestFiniteMagnitude
+        )
+        textView.isHorizontallyResizable = true
+        textView.isVerticallyResizable = true
+        textView.minSize = .zero
+        textView.maxSize = NSSize(
+            width: CGFloat.greatestFiniteMagnitude,
+            height: CGFloat.greatestFiniteMagnitude
+        )
+        textView.autoresizingMask = [.width]
+        textView.string = text
+
+        scrollView.documentView = textView
+        context.coordinator.textView = textView
+        return scrollView
+    }
+
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+        guard let textView = context.coordinator.textView else { return }
+        guard textView.string != text else { return }
+
+        let clipView = scrollView.contentView
+        let previousOrigin = clipView.bounds.origin
+        let wasPinnedToBottom = isPinnedToBottom(scrollView)
+
+        textView.string = text
+
+        if wasPinnedToBottom {
+            textView.scrollToEndOfDocument(nil)
+        } else {
+            // The user is reading earlier output; keep that location stable
+            // while new bytes arrive below it.
+            clipView.scroll(to: previousOrigin)
+            scrollView.reflectScrolledClipView(clipView)
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    private func isPinnedToBottom(_ scrollView: NSScrollView) -> Bool {
+        guard let documentView = scrollView.documentView else { return true }
+
+        let visible = scrollView.contentView.bounds
+        let bottomEdge = visible.maxY
+        let contentHeight = documentView.bounds.height
+
+        return contentHeight - bottomEdge < 24
+    }
+
+    final class Coordinator {
+        weak var textView: NSTextView?
     }
 }
