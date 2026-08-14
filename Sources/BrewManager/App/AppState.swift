@@ -14,6 +14,7 @@ final class AppState {
     var outdatedCount: Int = 0
     var lastUpdateCheck: Date?
     var isCommandPalettePresented = false
+    var isAppActive = true
 
     let homebrewService: HomebrewService
     let preferences: Preferences
@@ -22,6 +23,8 @@ final class AppState {
     private let notificationService = NotificationService()
     private var scheduler: UpdateScheduler?
     private var bootstrapped = false
+
+    private static let minimumAutomaticUpdateCheckInterval: TimeInterval = 600
 
     /// Outdated packages the user has already been told about, so repeated
     /// polls of an unchanged system stay silent.
@@ -64,8 +67,15 @@ final class AppState {
     }
 
     /// Refreshes the outdated count without disturbing any visible screen.
-    func performBackgroundUpdateCheck() async {
+    func performBackgroundUpdateCheck(userInitiated: Bool = false) async {
         guard brewExecutablePath != nil else { return }
+        guard userInitiated || isAppActive else { return }
+
+        if !userInitiated,
+           let lastUpdateCheck,
+           Date().timeIntervalSince(lastUpdateCheck) < Self.minimumAutomaticUpdateCheckInterval {
+            return
+        }
 
         do {
             let outdated = try await homebrewService.outdatedPackages(
@@ -101,6 +111,10 @@ final class AppState {
             outdatedCount = outdated.count
             lastUpdateCheck = Date()
         }
+    }
+
+    func setActive(_ active: Bool) {
+        isAppActive = active
     }
 
     func refreshBrewDiscovery() async {

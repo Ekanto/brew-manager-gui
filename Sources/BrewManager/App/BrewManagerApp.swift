@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct BrewManagerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @Environment(\.scenePhase) private var scenePhase
     @State private var appState = AppState()
 
     var body: some Scene {
@@ -17,6 +18,9 @@ struct BrewManagerApp: App {
         .defaultSize(width: 1240, height: 820)
         .commands {
             BrewManagerCommands(appState: appState)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            appState.setActive(phase == .active)
         }
 
         MenuBarExtra(isInserted: menuBarVisibility) {
@@ -56,7 +60,7 @@ struct BrewManagerCommands: Commands {
             .keyboardShortcut("r", modifiers: .command)
 
             Button("Check for Updates") {
-                Task { await appState.performBackgroundUpdateCheck() }
+                Task { await appState.performBackgroundUpdateCheck(userInitiated: true) }
             }
             .keyboardShortcut("u", modifiers: [.command, .shift])
 

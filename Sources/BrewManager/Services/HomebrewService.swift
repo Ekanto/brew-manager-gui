@@ -7,7 +7,7 @@ actor HomebrewService {
 
     /// Mutating commands run one at a time; see `OperationGate`.
     private let gate = OperationGate()
-    private let readCache = TTLCache<[String]>(lifetime: 90)
+    private let readCache = TTLCache<ProcessResult>(lifetime: 90)
 
     init(
         processRunner: ProcessRunning = ProcessRunner(),
@@ -395,6 +395,11 @@ actor HomebrewService {
         stream: (@Sendable (ProcessEvent) -> Void)? = nil
     ) async throws -> ProcessResult {
         guard Self.isMutating(arguments: arguments) else {
+            if stream == nil {
+                return try await readCache.value(forKey: Self.cacheKey(for: arguments)) {
+                    try await self.executeCommand(arguments: arguments)
+                }
+            }
             return try await executeCommand(arguments: arguments, stream: stream)
         }
 
@@ -424,6 +429,10 @@ actor HomebrewService {
             executable: executable,
             arguments: arguments
         )
+    }
+
+    private static func cacheKey(for arguments: [String]) -> String {
+        arguments.joined(separator: "\u{0}")
     }
 
     private func parseInstalledPackageList(_ text: String, type: PackageType) -> [BrewPackage] {

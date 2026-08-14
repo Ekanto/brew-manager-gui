@@ -101,9 +101,11 @@ struct RootView: View {
     }
 
     /// Honour the app preference *or* the system accessibility setting; either
-    /// one asking for solid surfaces is enough.
+    /// one asking for solid surfaces is enough. The app also switches to solid,
+    /// cheaper surfaces while inactive so Stage Manager/minimize snapshots do
+    /// not have to animate a large stack of live materials.
     private var prefersOpaqueSurfaces: Bool {
-        appState.preferences.reduceTransparency || systemReduceTransparency
+        appState.preferences.reduceTransparency || systemReduceTransparency || !appState.isAppActive
     }
 
     private var selectedSectionBinding: Binding<SidebarSection?> {

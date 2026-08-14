@@ -147,6 +147,8 @@ struct ChromeBackgroundModifier: ViewModifier {
 /// Gradient-filled symbol tile. Gives each section and card a strong, colourful
 /// focal point.
 struct IconTile: View {
+    @Environment(\.reduceTransparencyEnabled) private var reduceTransparency
+
     let systemImage: String
     let color: Color
     var size: CGFloat = 32
@@ -160,7 +162,12 @@ struct IconTile: View {
                     .font(.system(size: size * 0.46, weight: .semibold))
                     .foregroundStyle(.white)
             )
-            .shadow(color: color.opacity(0.35), radius: 4, x: 0, y: 2)
+            .shadow(
+                color: color.opacity(reduceTransparency ? 0 : 0.35),
+                radius: reduceTransparency ? 0 : 4,
+                x: 0,
+                y: reduceTransparency ? 0 : 2
+            )
     }
 }
 

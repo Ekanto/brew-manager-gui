@@ -15,7 +15,7 @@ final class UpdateScheduler {
     static let minimumInterval: TimeInterval = 300
 
     init(
-        initialDelay: Duration = .seconds(20),
+        initialDelay: Duration = .seconds(120),
         performCheck: @escaping @MainActor () async -> Void
     ) {
         self.initialDelay = initialDelay
