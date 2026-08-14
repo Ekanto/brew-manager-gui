@@ -1,0 +1,33 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Build output — the .app bundle and disk image are produced by Scripts/
+build/
+
+# Generated app icon. Scripts/make-icon.swift recreates both from code, and
+# Scripts/build-app.sh runs it automatically when they are missing.
+Resources/AppIcon.icns
+Resources/AppIcon.png
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Signing and notarisation artefacts — never commit credentials or profiles
+*.entitlements
+*.p12
+*.cer
+*.provisionprofile
+notarize-credentials.sh

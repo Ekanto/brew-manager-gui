@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and test
+    # macos-15 ships Xcode 16 (Swift 6) by default. macos-14 defaults to
+    # Xcode 15.4, whose Swift 5.10 cannot read this package's
+    # swift-tools-version: 6.0 manifest.
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcode-select -p
+          swift --version
+
+      - name: Build
+        run: swift build
+
+      # The unit tests are guarded with `#if canImport(XCTest)` so the package
+      # still builds on machines that only have the Command Line Tools, where
+      # XCTest is unavailable. CI has a full Xcode toolchain, so this is the
+      # only place the tests actually compile and execute.
+      - name: Test
+        run: swift test
+
+      # Proves the distributable artefacts still assemble, including the app
+      # icon, which is generated from code rather than committed.
+      - name: Package app bundle
+        run: ./Scripts/build-app.sh release
+
+      - name: Verify bundle signature
+        run: codesign --verify --deep --strict --verbose=2 build/BrewManager.app
+
+      - name: Build disk image
+        run: ./Scripts/build-dmg.sh --skip-build
+
+      - name: Upload disk image
+        uses: actions/upload-artifact@v4
+        with:
+          name: BrewManager-dmg
+          path: build/*.dmg
+          if-no-files-found: error
