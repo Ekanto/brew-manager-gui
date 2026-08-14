@@ -15,16 +15,19 @@ final class AppState {
     var lastUpdateCheck: Date?
     var isCommandPalettePresented = false
     var isAppActive = true
+    var isChangelogPresented = false
 
     let homebrewService: HomebrewService
     let preferences: Preferences
 
     private let historyStore = HistoryStore()
     private let notificationService = NotificationService()
+    private let defaults: UserDefaults
     private var scheduler: UpdateScheduler?
     private var bootstrapped = false
 
     private static let minimumAutomaticUpdateCheckInterval: TimeInterval = 600
+    private static let lastSeenChangelogVersionKey = "lastSeenChangelogVersion"
 
     /// Outdated packages the user has already been told about, so repeated
     /// polls of an unchanged system stay silent.
@@ -32,10 +35,12 @@ final class AppState {
 
     init(
         homebrewService: HomebrewService = HomebrewService(),
-        preferences: Preferences = Preferences()
+        preferences: Preferences = Preferences(),
+        defaults: UserDefaults = .standard
     ) {
         self.homebrewService = homebrewService
         self.preferences = preferences
+        self.defaults = defaults
     }
 
     func bootstrapIfNeeded() async {
@@ -46,6 +51,7 @@ final class AppState {
 
         await refreshBrewDiscovery()
         configureScheduler()
+        presentChangelogIfNeeded()
     }
 
     // MARK: - Background update checks
@@ -115,6 +121,19 @@ final class AppState {
 
     func setActive(_ active: Bool) {
         isAppActive = active
+    }
+
+    func presentChangelogIfNeeded() {
+        guard defaults.string(forKey: Self.lastSeenChangelogVersionKey) != AppInfo.version else {
+            return
+        }
+
+        isChangelogPresented = true
+    }
+
+    func dismissChangelog() {
+        defaults.set(AppInfo.version, forKey: Self.lastSeenChangelogVersionKey)
+        isChangelogPresented = false
     }
 
     func refreshBrewDiscovery() async {

@@ -98,6 +98,12 @@ struct RootView: View {
                 .environment(appState)
                 .environment(\.reduceTransparencyEnabled, prefersOpaqueSurfaces)
         }
+        .sheet(isPresented: $appState.isChangelogPresented) {
+            ChangelogView {
+                appState.dismissChangelog()
+            }
+            .environment(\.reduceTransparencyEnabled, prefersOpaqueSurfaces)
+        }
     }
 
     /// Honour the app preference *or* the system accessibility setting; either

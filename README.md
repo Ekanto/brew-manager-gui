@@ -35,7 +35,7 @@ about a minute and needs no Xcode project:
 git clone https://github.com/Ekanto/brew-manager-gui.git
 cd brew-manager-gui
 ./Scripts/build-dmg.sh
-open build/BrewManager-1.2.dmg
+open build/BrewManager-2.0.dmg
 ```
 
 Then drag **BrewManager.app** onto the **Applications** folder in the window
