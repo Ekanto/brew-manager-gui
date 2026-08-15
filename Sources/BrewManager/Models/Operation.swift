@@ -77,6 +77,19 @@ final class OperationConsoleModel: Identifiable {
         self.duration = nil
     }
 
+    convenience init(record: OperationRecord) {
+        self.init(
+            id: record.id,
+            title: record.title,
+            command: record.command,
+            startedAt: record.startedAt
+        )
+        output = record.output
+        isRunning = false
+        exitCode = record.exitCode
+        duration = record.duration
+    }
+
     var severity: OperationSeverity {
         guard let exitCode else { return .success }
         if exitCode == 0 { return .success }

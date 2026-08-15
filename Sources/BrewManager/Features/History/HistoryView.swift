@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HistoryView: View {
     let appState: AppState
+    @State private var selectedLog: OperationConsoleModel?
 
     var body: some View {
         Group {
@@ -25,6 +26,11 @@ struct HistoryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Theme.canvas)
+        .sheet(item: $selectedLog) { operation in
+            OperationConsoleView(operation: operation) {
+                selectedLog = nil
+            }
+        }
     }
 
     private func historyRow(_ entry: OperationRecord) -> some View {
@@ -59,6 +65,23 @@ struct HistoryView: View {
                     )
                     Chip(text: "Exit \(entry.exitCode)", color: .secondary)
                     Chip(text: entry.duration.conciseDisplay, color: .secondary, systemImage: "timer")
+                }
+
+                HStack {
+                    Button {
+                        selectedLog = OperationConsoleModel(record: entry)
+                    } label: {
+                        Label(
+                            entry.succeeded ? "View Output" : "View Error Log",
+                            systemImage: "terminal"
+                        )
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .disabled(entry.output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .help("Open the stored terminal output for this command")
+
+                    Spacer(minLength: 0)
                 }
             }
         }

@@ -12,6 +12,16 @@ struct ChangelogEntry: Identifiable, Sendable {
 enum Changelog {
     static let entries: [ChangelogEntry] = [
         ChangelogEntry(
+            version: "3.0",
+            title: "History Log Viewer",
+            date: "August 2026",
+            highlights: [
+                "Added a View Error Log action to failed history entries so you can inspect the exact terminal output that explains what went wrong.",
+                "Successful history entries can also open their stored output, making History a complete command log instead of only a summary.",
+                "The log opens in the same scrollable terminal-style console used by live operations, with copy support and the original command shown at the top."
+            ]
+        ),
+        ChangelogEntry(
             version: "2.0",
             title: "What’s New",
             date: "August 2026",
