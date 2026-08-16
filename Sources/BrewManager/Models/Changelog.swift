@@ -12,6 +12,15 @@ struct ChangelogEntry: Identifiable, Sendable {
 enum Changelog {
     static let entries: [ChangelogEntry] = [
         ChangelogEntry(
+            version: "5.1",
+            title: "Permission Repair Fix",
+            date: "August 2026",
+            highlights: [
+                "Fixed the Issues panel to suggest an ownership repair for root-owned cask apps instead of repeating `brew reinstall`.",
+                "The copied Terminal command now targets the affected app bundle directly, which resolves cases like WhatsApp staying root-owned after reinstall."
+            ]
+        ),
+        ChangelogEntry(
             version: "5.0",
             title: "Problem Resolver Center",
             date: "August 2026",

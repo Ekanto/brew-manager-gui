@@ -35,7 +35,13 @@ struct CaskPermissionIssue: Identifiable, Hashable, Sendable {
     var id: String { "\(name):\(appPath)" }
 
     var terminalCommand: String {
-        "brew reinstall --cask \(name)"
+        "sudo chown -R \"$USER\":admin \(appPath.shellQuoted)"
+    }
+}
+
+private extension String {
+    var shellQuoted: String {
+        "'" + replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 }
 

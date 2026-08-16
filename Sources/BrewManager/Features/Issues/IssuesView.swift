@@ -181,7 +181,7 @@ struct IssuesView: View {
                     icon: "lock.trianglebadge.exclamationmark.fill",
                     color: Theme.Palette.danger,
                     title: "\(issue.name) needs Terminal repair",
-                    summary: "\(issue.appPath) is owned by \(issue.owner). Brew Manager will not ask for your password inside the GUI; run the copied command in Terminal so macOS can prompt safely."
+                    summary: "\(issue.appPath) is owned by \(issue.owner). Brew Manager will not ask for your password inside the GUI; run the copied ownership repair in Terminal so macOS can prompt safely."
                 ) {
                     VStack(alignment: .leading, spacing: 10) {
                         Text(issue.terminalCommand)
