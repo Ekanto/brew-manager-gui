@@ -12,6 +12,16 @@ struct ChangelogEntry: Identifiable, Sendable {
 enum Changelog {
     static let entries: [ChangelogEntry] = [
         ChangelogEntry(
+            version: "4.0",
+            title: "GitHub Release Publishing",
+            date: "August 2026",
+            highlights: [
+                "Added a tag-triggered GitHub Actions workflow that builds, tests and packages Brew Manager when a version tag is pushed.",
+                "The workflow verifies the tag matches the app bundle version before publishing, so a mistagged release fails safely.",
+                "Release artifacts are uploaded directly to GitHub Releases as downloadable DMG files."
+            ]
+        ),
+        ChangelogEntry(
             version: "3.0",
             title: "History Log Viewer",
             date: "August 2026",

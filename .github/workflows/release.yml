@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish, for example v3.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build DMG and publish release
+    # macos-15 ships Xcode 16 (Swift 6) by default.
+    runs-on: macos-15
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Resolve release tag
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+          fi
+
+          case "$TAG" in
+            v[0-9]*)
+              ;;
+            *)
+              echo "error: release tag must look like v3.0 or v3.0.1, got '$TAG'" >&2
+              exit 1
+              ;;
+          esac
+
+          VERSION="${TAG#v}"
+          {
+            echo "tag=$TAG"
+            echo "version=$VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Show toolchain
+        run: |
+          xcode-select -p
+          swift --version
+          gh --version
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test
+
+      - name: Package app bundle
+        run: ./Scripts/build-app.sh release
+
+      - name: Verify app version matches tag
+        run: |
+          APP_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/BrewManager.app/Contents/Info.plist)"
+          if [ "$APP_VERSION" != "${{ steps.release.outputs.version }}" ]; then
+            echo "error: tag ${{ steps.release.outputs.tag }} expects app version ${{ steps.release.outputs.version }}, but bundle is $APP_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Verify bundle signature
+        run: codesign --verify --deep --strict --verbose=2 build/BrewManager.app
+
+      - name: Build disk image
+        run: ./Scripts/build-dmg.sh --skip-build
+
+      - name: Verify disk image exists
+        id: artifact
+        run: |
+          DMG="build/BrewManager-${{ steps.release.outputs.version }}.dmg"
+          test -f "$DMG"
+          echo "dmg=$DMG" >> "$GITHUB_OUTPUT"
+
+      - name: Write release notes
+        run: |
+          cat > release-notes.md <<'NOTES'
+          ## Brew Manager ${{ steps.release.outputs.version }}
+
+          Download `BrewManager-${{ steps.release.outputs.version }}.dmg`, open it, then drag **BrewManager.app** to **Applications**.
+
+          This build is ad-hoc signed. On first launch, macOS may ask you to right-click the app and choose **Open**, or allow it from **System Settings → Privacy & Security**.
+
+          See the in-app changelog for the full list of changes.
+          NOTES
+
+      - name: Publish GitHub Release
+        run: |
+          gh release create "${{ steps.release.outputs.tag }}" \
+            "${{ steps.artifact.outputs.dmg }}" \
+            --title "Brew Manager ${{ steps.release.outputs.version }}" \
+            --notes-file release-notes.md \
+            --latest

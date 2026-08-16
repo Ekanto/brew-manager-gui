@@ -9,14 +9,14 @@ enum AppInfo {
     static let author = "Umar"
 
     static var version: String {
-        bundleString("CFBundleShortVersionString") ?? "3.0"
+        bundleString("CFBundleShortVersionString") ?? "4.0"
     }
 
     static var build: String? {
         bundleString("CFBundleVersion")
     }
 
-    /// "3.0 (1)" when a build number is available, otherwise just the version.
+    /// "4.0 (1)" when a build number is available, otherwise just the version.
     static var displayVersion: String {
         guard let build, build != version else {
             return "Version \(version)"
