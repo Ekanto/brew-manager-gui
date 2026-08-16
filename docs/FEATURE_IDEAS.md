@@ -1,197 +1,176 @@
-Brew Manager - Future Feature Ideas
-===================================
+# Brew Manager Future Feature Ideas
 
 Use this as a backlog. Implement one feature at a time and keep the rule:
-Homebrew remains the source of truth; Brew Manager should run real brew
+**Homebrew remains the source of truth**. Brew Manager should run real `brew`
 commands and show real command output.
 
+## Recommended order
 
-Recommended order
------------------
-
-1. Auto-create GitHub Release workflow
+1. [x] **Auto-create GitHub Release workflow**
    - Status: implemented in v4.0.
-   - When a tag like v4.0 is pushed, CI builds the DMG and attaches it to a
+   - When a tag like `v4.0` is pushed, CI builds the DMG and attaches it to a
      GitHub Release automatically.
 
-2. Problem resolver center
+2. [x] **Problem resolver center**
    - Status: implemented in v5.0.
    - Dedicated Issues panel for stale casks, permission problems, missing app
-     files, broken taps and brew doctor warnings.
+     files, broken taps and `brew doctor` warnings.
    - Each issue should show safe fix buttons when possible.
 
-3. Terminal handoff for sudo-required commands
-   - Detect commands that need interactive sudo and offer "Run in Terminal".
-   - Open Terminal with the exact brew command instead of failing inside the GUI.
+3. [ ] **Terminal handoff for sudo-required commands**
+   - Detect commands that need interactive `sudo` and offer **Run in Terminal**.
+   - Open Terminal with the exact `brew` command instead of failing inside the GUI.
 
-4. Upgrade impact preview
+4. [ ] **Upgrade impact preview**
    - Before upgrade, show packages to upgrade, current/latest versions, casks
      needing sudo, services likely to restart and estimated download count.
 
-5. Export debug report / Copy as bug report
+5. [ ] **Export debug report / Copy as bug report**
    - Create a text or Markdown report with app version, macOS version, brew
      path/version, last failed command, output and relevant history.
 
+## Distribution and updates
 
-Distribution and updates
-------------------------
-
-- GitHub Releases updater
+- [ ] **GitHub Releases updater**
   - App checks GitHub Releases, shows when a newer version is available and
     opens the download page or downloads the DMG.
 
-- Release notes/changelog from GitHub
+- [ ] **Release notes/changelog from GitHub**
   - Pull release notes from GitHub Releases instead of hardcoding all future
     changelog entries in the app.
 
-- One-click "Open Latest Release"
+- [ ] **One-click “Open Latest Release”**
   - Add a button in Settings/About to open the latest GitHub release page.
 
-- Auto-create GitHub Release workflow
+- [x] **Auto-create GitHub Release workflow**
   - Tag push builds the DMG and attaches it to a release.
 
-- Notarized release workflow
+- [ ] **Notarized release workflow**
   - Later, with Apple Developer ID credentials, CI can sign, notarize and staple
     the app/DMG.
 
+## Upgrade safety
 
-Upgrade safety
---------------
-
-- Pre-upgrade snapshot
+- [ ] **Pre-upgrade snapshot**
   - Before upgrade, save installed formulae/casks list to history.
   - Helps users see exactly what changed if something breaks.
 
-- Upgrade impact preview
+- [ ] **Upgrade impact preview**
   - Show planned upgrades, current/latest versions, casks needing sudo, likely
     service restarts and estimated download count.
 
-- Sudo-required detection
+- [ ] **Sudo-required detection**
   - Warn early if a cask/app will need a password.
   - Avoid failing mid-upgrade inside the GUI.
 
-- Permission diagnostics
+- [ ] **Permission diagnostics**
   - Detect root-owned apps like WhatsApp before upgrade and explain the fix.
 
-- Terminal handoff button
+- [ ] **Terminal handoff button**
   - For interactive sudo cases, open Terminal with the exact command.
 
-- Cancel running operation
+- [ ] **Cancel running operation**
   - Add a cancel button for long install/upgrade operations.
   - Must warn clearly before terminating Homebrew.
 
+## Problem solving and diagnostics
 
-Problem solving and diagnostics
--------------------------------
-
-- Problem resolver center
+- [x] **Problem resolver center**
+  - Status: implemented in v5.0.
   - One place for stale casks, permission problems, missing app files, broken
-    taps, brew doctor warnings and suggested fixes.
+    taps, `brew doctor` warnings and suggested fixes.
 
-- Export debug report
+- [ ] **Export debug report**
   - One button creates a text report with app version, macOS version, brew
     version/path, last failed command, output and recent history.
 
-- Copy as bug report
+- [ ] **Copy as bug report**
   - From a failed History log, copy command + output + environment info in
     Markdown.
 
-- App diagnostics mode
+- [ ] **App diagnostics mode**
   - Toggle verbose internal logs for troubleshooting UI/performance issues.
 
+## History and logs
 
-History and logs
-----------------
-
-- Search filters in History
+- [ ] **Search filters in History**
   - Filter by failed/success, command type, date range and package name.
 
-- History replay
-  - Allow "Run again" from a history item after confirmation.
+- [ ] **History replay**
+  - Allow **Run again** from a history item after confirmation.
 
-- Copy as bug report
+- [ ] **Copy as bug report**
   - Copy failure details in a clean support-friendly format.
 
+## Package intelligence
 
-Package intelligence
---------------------
-
-- Package health badges
+- [ ] **Package health badges**
   - Show Pinned, Keg-only, Deprecated, Disabled, Has dependents, Large package
     and External tap.
 
-- Dependency graph view
+- [ ] **Dependency graph view**
   - Visual tree for dependencies and reverse dependents.
   - Useful before uninstalling packages.
 
-- Favorites / watchlist
+- [ ] **Favorites / watchlist**
   - Star packages and get notified when starred packages have updates.
 
-- Pinned package manager
+- [ ] **Pinned package manager**
   - Dedicated view for pinned packages with explanations and unpin action.
 
+## Taps and Brewfiles
 
-Taps and Brewfiles
-------------------
-
-- Tap trust summary
+- [ ] **Tap trust summary**
   - Separate official vs third-party taps.
   - Show package counts, last update status and remove risk.
 
-- Brewfile profiles
+- [ ] **Brewfile profiles**
   - Save multiple Brewfiles: Work, Personal, Fresh Mac, Minimal.
   - Export/import/apply each profile.
 
-- Fresh Mac setup mode
+- [ ] **Fresh Mac setup mode**
   - Guided flow: install Homebrew, apply Brewfile, add taps, install apps and
     verify services.
 
+## Maintenance and storage
 
-Maintenance and storage
------------------------
-
-- Maintenance recommendations
+- [ ] **Maintenance recommendations**
   - Dashboard card for reclaimable cache size, orphan packages, stale casks and
-    brew doctor warnings.
+    `brew doctor` warnings.
 
-- Storage breakdown
+- [ ] **Storage breakdown**
   - Donut/bar chart for formulae, casks, cache, logs and Caskroom backups.
 
-- Scheduled maintenance reminder
-  - Monthly notification: "Run cleanup preview?"
+- [ ] **Scheduled maintenance reminder**
+  - Monthly notification: **Run cleanup preview?**
 
+## Services
 
-Services
---------
-
-- Service logs helper
-  - For Homebrew services, show brew services info, plist path and buttons to
+- [ ] **Service logs helper**
+  - For Homebrew services, show `brew services info`, plist path and buttons to
     open Console/log files when available.
 
+## Commands and productivity
 
-Commands and productivity
--------------------------
-
-- Command templates
-  - Safe custom commands like brew missing, brew leaves, brew uses --installed.
+- [ ] **Command templates**
+  - Safe custom commands like `brew missing`, `brew leaves`,
+    `brew uses --installed`.
   - Output should open in the existing terminal log viewer.
 
-- Menu bar quick actions
+- [ ] **Menu bar quick actions**
   - Updates count, run update check, open History, open Maintenance and latest
     failure indicator.
 
-- Keyboard-first polish
+- [ ] **Keyboard-first polish**
   - More shortcuts, focus restoration and command palette actions for every
     section.
 
+## Onboarding and UX
 
-Onboarding and UX
------------------
-
-- First-run onboarding
-  - Explain safety model: Brew Manager runs real brew commands, destructive
+- [ ] **First-run onboarding**
+  - Explain safety model: Brew Manager runs real `brew` commands, destructive
     actions require confirmation and output is always visible.
 
-- Performance mode
+- [ ] **Performance mode**
   - Explicit setting to reduce transparency, disable shadows and avoid
     background checks while inactive.

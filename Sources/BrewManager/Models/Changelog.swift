@@ -12,6 +12,17 @@ struct ChangelogEntry: Identifiable, Sendable {
 enum Changelog {
     static let entries: [ChangelogEntry] = [
         ChangelogEntry(
+            version: "5.0",
+            title: "Problem Resolver Center",
+            date: "August 2026",
+            highlights: [
+                "Added a dedicated Issues section that scans for stale casks, root-owned cask apps and `brew doctor` warnings.",
+                "Stale casks can now be repaired from one place with safe Reinstall and Forget actions that show the real Homebrew command output.",
+                "Permission problems are detected before upgrades fail, with a copyable Terminal command for repairs that need an interactive password prompt.",
+                "Homebrew doctor suggestions are parsed into safe fix buttons when Brew Manager can validate the command."
+            ]
+        ),
+        ChangelogEntry(
             version: "4.0",
             title: "GitHub Release Publishing",
             date: "August 2026",

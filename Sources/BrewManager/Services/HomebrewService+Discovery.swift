@@ -325,4 +325,52 @@ extension HomebrewService {
             return allEmpty ? StaleCask(name: cask.name, missingPath: nil) : nil
         }
     }
+
+    /// Casks installed in /Applications sometimes end up owned by root (for
+    /// example after a previous sudo-assisted install). Homebrew then needs an
+    /// interactive password prompt to replace them, which a GUI subprocess
+    /// cannot provide. Detect these early and offer a Terminal handoff.
+    func rootOwnedCaskApps() async throws -> [CaskPermissionIssue] {
+        let casks = try await listInstalledPackages(type: .cask)
+        guard !casks.isEmpty else { return [] }
+
+        let casksByCompactName = Dictionary(
+            casks.map { ($0.name.replacingOccurrences(of: "-", with: ""), $0.name) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        let applicationsURL = URL(fileURLWithPath: "/Applications", isDirectory: true)
+        let appURLs = (try? FileManager.default.contentsOfDirectory(
+            at: applicationsURL,
+            includingPropertiesForKeys: nil
+        )) ?? []
+
+        return appURLs.compactMap { appURL in
+            guard appURL.pathExtension == "app" else { return nil }
+
+            let baseName = appURL.deletingPathExtension().lastPathComponent
+            let compact = baseName
+                .lowercased()
+                .replacingOccurrences(of: " ", with: "")
+                .replacingOccurrences(of: "-", with: "")
+
+            guard let caskName = casksByCompactName[compact] else { return nil }
+
+            guard
+                let attributes = try? FileManager.default.attributesOfItem(atPath: appURL.path),
+                let ownerID = attributes[.ownerAccountID] as? NSNumber,
+                ownerID.intValue == 0
+            else {
+                return nil
+            }
+
+            let owner = (attributes[.ownerAccountName] as? String) ?? "root"
+            return CaskPermissionIssue(
+                name: caskName,
+                appPath: appURL.path,
+                owner: owner
+            )
+        }
+        .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
 }

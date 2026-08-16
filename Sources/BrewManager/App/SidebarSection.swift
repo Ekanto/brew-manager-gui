@@ -8,6 +8,7 @@ enum SidebarSection: String, CaseIterable, Identifiable {
     case services
     case taps
     case brewfile
+    case issues
     case maintenance
     case history
     case settings
@@ -30,6 +31,8 @@ enum SidebarSection: String, CaseIterable, Identifiable {
             return "Taps"
         case .brewfile:
             return "Brewfile"
+        case .issues:
+            return "Issues"
         case .maintenance:
             return "Maintenance"
         case .history:
@@ -55,6 +58,8 @@ enum SidebarSection: String, CaseIterable, Identifiable {
             return "arrow.triangle.branch"
         case .brewfile:
             return "doc.text"
+        case .issues:
+            return "exclamationmark.triangle"
         case .maintenance:
             return "wrench.and.screwdriver"
         case .history:

@@ -17,6 +17,8 @@ extension SidebarSection {
             return Color(red: 0.36, green: 0.72, blue: 0.78)
         case .brewfile:
             return Color(red: 0.36, green: 0.72, blue: 0.78)
+        case .issues:
+            return Theme.Palette.warning
         case .maintenance:
             return Theme.Palette.amberDeep
         case .history:
@@ -42,6 +44,8 @@ extension SidebarSection {
             return "Extra repositories"
         case .brewfile:
             return "Export and apply"
+        case .issues:
+            return "Fix brew problems"
         case .maintenance:
             return "Clean and diagnose"
         case .history:

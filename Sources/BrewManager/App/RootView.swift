@@ -140,6 +140,8 @@ struct RootView: View {
             TapsView(appState: appState)
         case .brewfile:
             BrewfileView(appState: appState)
+        case .issues:
+            IssuesView(appState: appState)
         case .maintenance:
             MaintenanceView(appState: appState)
         case .history:

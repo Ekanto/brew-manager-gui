@@ -21,6 +21,22 @@ struct StaleCask: Identifiable, Hashable, Sendable {
     var missingItemName: String? {
         missingPath.map { ($0 as NSString).lastPathComponent }
     }
+
+}
+
+/// A Homebrew cask whose app exists in /Applications but is owned by root.
+/// Homebrew can still repair it, but a GUI subprocess cannot answer the sudo
+/// password prompt, so users need to run the exact command in Terminal.
+struct CaskPermissionIssue: Identifiable, Hashable, Sendable {
+    let name: String
+    let appPath: String
+    let owner: String
+
+    var id: String { "\(name):\(appPath)" }
+
+    var terminalCommand: String {
+        "brew reinstall --cask \(name)"
+    }
 }
 
 /// How the user chose to resolve a stale cask record.

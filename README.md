@@ -35,7 +35,7 @@ about a minute and needs no Xcode project:
 git clone https://github.com/Ekanto/brew-manager-gui.git
 cd brew-manager-gui
 ./Scripts/build-dmg.sh
-open build/BrewManager-4.0.dmg
+open build/BrewManager-5.0.dmg
 ```
 
 Then drag **BrewManager.app** onto the **Applications** folder in the window
@@ -166,13 +166,13 @@ Push a version tag that matches `CFBundleShortVersionString`; the Release
 workflow builds, tests, packages and publishes the DMG automatically:
 
 ```bash
-git tag v4.0
-git push origin v4.0
+git tag v5.0
+git push origin v5.0
 ```
 
 The workflow refuses to publish if the tag and app version do not match. For
-example, tag `v4.0` requires the bundle version to be `4.0`, and the release
-asset will be `BrewManager-4.0.dmg`.
+example, tag `v5.0` requires the bundle version to be `5.0`, and the release
+asset will be `BrewManager-5.0.dmg`.
 
 Run the app from the bundle (`open build/BrewManager.app`) rather than with
 `swift run`. A bare SwiftPM executable has no `Info.plist`, so macOS treats it
